@@ -33,7 +33,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <form action="./create.php" method="POST">
+        <form action="./create.php" method="POST" enctype="multipart/form-data">
           <div class="form-group">
             <label for="name">Nombre*:</label>
             <input type="text" class="form-control" placeholder="Introduce tu nombre" name="name">
@@ -45,6 +45,10 @@
           <div class="form-group">
             <label for="phone">Contraseña*:</label>
             <input type="text" class="form-control" placeholder="Introduce tu contraseña" name="password">
+          </div>
+          <div class="form-group">
+            <label for="photo">Foto de perfil*:</label>
+            <input name="photo" type="file" placeholder="Foto de Perfil" class="form-control"><br><br>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Guardar</button>
@@ -71,6 +75,14 @@ if (isset($_GET['createuser'])) {
     <div class="alert alert-warning alert-dismissible">
       <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
       <strong>Error al insertar el usuario</strong>, vuelve a intentarlo más tarde.
+    </div>
+    <?php
+  }
+  else if ($_GET['createuser']=='error') {
+    ?>
+    <div class="alert alert-warning alert-dismissible">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <strong>Error al insertar el usuario</strong>, rellene todos los campos.
     </div>
     <?php
   }
@@ -101,6 +113,7 @@ if (isset($_GET['deleteuser'])) {
   <thead>
     <tr>
       <th scope="col">ID</th>
+      <th scope="col">Foto Perfil</th>
       <th scope="col">Correo</th>
       <th scope="col">Password</th>
       <th scope="col">Nombre</th>
@@ -118,27 +131,21 @@ if (isset($_GET['deleteuser'])) {
       else{
         while($row = mysqli_fetch_array($result)){
           echo ' <tr>
-      <th scope="row">'.$row["id"].'</th>
+      <th scope="row">'.$row["id"].'</th>';
+      if ($row['photo'] !== null) {
+        echo '<td><img src="data:image/jpeg;base64,'.base64_encode($row['photo']).'" style="width:50px;"></td>';
+      }else{
+        echo '<td><img src="./images/empty_user.jpg" style="width:50px;"></td>';
+      }
+      echo '
       <td>'.$row["email"].'</td>
       <td>'.$row["password"].'</td>
       <td>'.$row["name"].'</td>
-      <td><a href="./delete.php?id='.$row["id"].'"><i class="fa fa-trash"></i></a></td>
+      <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete'.$row["id"].'"><i class="fa fa-trash"></i></button></td>
     </tr>';
-        }
-      }
-    ?>
-
-    
-  </tbody>
-</table>
-</div>
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
-  borrar
-</button>
-
-<!-- Modal -->
-<div class="modal fade bd-example-modal-sm" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    echo '
+    <!-- Modal -->
+<div class="modal fade bd-example-modal-sm" id="delete'.$row["id"].'" tabindex="-1" role="dialog"  aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -151,10 +158,21 @@ if (isset($_GET['deleteuser'])) {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-success">Delete</button>
+        <button type="button" class="btn btn-success"><a href="./delete.php?id='.$row["id"].'">Delete</a></button>
       </div>
     </div>
   </div>
 </div>
+    ';
+        }
+      }
+    ?>
+
+    
+  </tbody>
+</table>
+</div>
+
+
 </body>
 </html>
